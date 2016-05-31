@@ -1,0 +1,10 @@
+# BUild
+/bin/
+
+# Eclipse
+/.project
+/.classpath
+
+# Java
+*.class
+*.jar
