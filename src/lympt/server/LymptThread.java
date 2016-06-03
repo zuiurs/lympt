@@ -28,8 +28,6 @@ public class LymptThread extends Thread {
 	
 	@Override
 	public void run() {
-		super.run();
-
 		// 最終的にこのスレッド用のソケットは閉じる
 		try {
 			reader = new BufferedReader(

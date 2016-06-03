@@ -1,0 +1,9 @@
+##############################
+# LymptService Configuration #
+##############################
+
+# container capacity
+CONTAINER_CAPACITY=2
+
+# container identifier
+CONTAINER_IDENTIFIER=lympt/

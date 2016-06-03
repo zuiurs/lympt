@@ -18,8 +18,9 @@ public class FinishProcess extends Thread{
 			br = new BufferedReader(fr);
 
 			String line;
+			/* delete all used container */
 			while ((line = br.readLine()) != null) {
-				OSCommand.exec("docker rm -f " + line);
+				OSCommand.exec("docker rm -f " + line); 
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

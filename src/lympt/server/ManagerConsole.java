@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import lympt.utils.*;
 
+/* out of use */
 public class ManagerConsole extends Thread {
 
 	public ManagerConsole() {
@@ -12,8 +13,6 @@ public class ManagerConsole extends Thread {
 	
 	@Override
 	public void run() {
-		super.run();
-		
 		while (true) {
 			String input = OSCommand.inputConsole(false);
 			if (input.toUpperCase().equals("EXIT")) {

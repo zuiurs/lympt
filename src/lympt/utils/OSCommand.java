@@ -7,6 +7,10 @@ import java.io.InputStreamReader;
 
 public class OSCommand {
 
+	/**
+	 * execute os commands
+	 * @param cmd an command including option parameter
+	 */
 	public static OSOutputs exec(String cmd) {
 		BufferedReader basic_output = null;
 		BufferedReader error_output = null;

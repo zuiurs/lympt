@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-// Linux Attempt -> Lympt
+/* Linux Attempt -> Lympt */
 public class LymptServer {
 
 	public static void main(String[] args) {
@@ -90,6 +90,6 @@ public class LymptServer {
 	}
 	
 	void monitorResource() {
-		//各コンテナのリソースを監視して、閾値を越えればkill
+		//TODO: 各コンテナのリソースを監視して、閾値を越えればkill
 	}
 }
