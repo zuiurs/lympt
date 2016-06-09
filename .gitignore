@@ -8,3 +8,11 @@
 # Java
 *.class
 #*.jar
+
+# Gradle
+/gradle/
+/.gradle/
+/gradlew
+/gradlew.bat
+/settings.gradle
+/build/

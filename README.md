@@ -8,18 +8,31 @@ This project contains a server and a client programs.
 
 ## Installation
 
-##### 1. Making a jar file of the server programs.
+##### 1. Cloning this project.
 
-	TODO
+	# git clone https://github.com/zuiurs/lympt
+	# cd lympt
 
-##### 2. Place the service file.
+##### 2. Build .jar file.
 
+	<Server Side>
+	# gradle server
+
+	<Client Side>
+	# gradle client
+
+##### 3. Execute .jar file.
+
+	# java -jar build/libs/LymptServer.jar <MaxClients> <ContainerPrefix>
+	# java -jar build/libs/LymptClient.jar
 
 ---
 ##### TODO
 
 - refactoring
-- making rpm file
-- the installation for Linux (I only checked the first procedure on Windows(Eclipse))
-- setting the port, IP address etc. via a configuration file
+- make rpm file
+- set the port, IP address etc. via a configuration file
 - SSL Socket?
+- study gradle
+- improve build.gradle
+- installation of gradle
