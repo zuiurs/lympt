@@ -7,7 +7,7 @@ def clientClass = 'lympt.client.LymptClient'
 def serverClass = 'lympt.server.LymptServer'
 def programName = "Lympt"
 
-task clientJar(type: Jar, dependsOn: jar) {
+task client(type: Jar, dependsOn: jar) {
     archiveName = "${programName}Client.jar"
     manifest {
         attributes 'Main-Class' : clientClass
@@ -18,7 +18,7 @@ task clientJar(type: Jar, dependsOn: jar) {
     from "$buildDir/resources/main"
 }
 
-task serverJar(type: Jar, dependsOn: jar) {
+task server(type: Jar, dependsOn: jar) {
     archiveName = "${programName}Server.jar"
     manifest {
         attributes 'Main-Class' : serverClass
@@ -29,28 +29,3 @@ task serverJar(type: Jar, dependsOn: jar) {
     from "$buildDir/resources/main"
 }
 
-task server(dependsOn: serverJar) << {
-    def executableFile = file("$buildDir/deploy/${programName}Server")
-    executableFile.parentFile.mkdirs()
-
-    def output = new FileOutputStream(executableFile)
-    output.write(("#!/bin/sh\n" +
-            "\n" +
-            "exec java -jar \$0 \"\$@\"\n").bytes)
-    output.write file("$libsDir/${programName}Server.jar").bytes
-    output.close()
-    executableFile.executable = true
-}
-
-task client(dependsOn: clientJar) << {
-    def executableFile = file("$buildDir/deploy/${programName}Client")
-    executableFile.parentFile.mkdirs()
-
-    def output = new FileOutputStream(executableFile)
-    output.write(("#!/bin/sh\n" +
-            "\n" +
-            "exec java -jar \$0 \"\$@\"\n").bytes)
-    output.write file("$libsDir/${programName}Client.jar").bytes
-    output.close()
-    executableFile.executable = true
-}

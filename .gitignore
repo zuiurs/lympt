@@ -7,12 +7,9 @@
 
 # Java
 *.class
-#*.jar
+*.jar
 
 # Gradle
-/gradle/
 /.gradle/
-/gradlew
-/gradlew.bat
-/settings.gradle
 /build/
+!gradle-wrapper.jar
