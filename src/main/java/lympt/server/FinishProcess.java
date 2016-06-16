@@ -20,7 +20,9 @@ public class FinishProcess extends Thread{
 			String line;
 			/* delete all used container */
 			while ((line = br.readLine()) != null) {
-				OSCommand.exec("docker rm -f " + line); 
+				OSCommand.exec(String.format(
+						"docker rm -f %s",
+						line)); 
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -31,7 +33,7 @@ public class FinishProcess extends Thread{
 				br.close();
 				fr.close();
 				LymptServer.TMP_FILE.delete();
-				System.out.println(ServerCmdManager.getDate() + "Successful Completion!");
+				LymptServer.LOG_MANAGER.write("Successful Completion!");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

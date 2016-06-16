@@ -1,9 +1,7 @@
 package lympt.server;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import lympt.utils.*;
+import lympt.utils.OSCommand;
+import lympt.utils.OSOutputs;
 
 public class ServerCmdManager {
 
@@ -47,50 +45,52 @@ public class ServerCmdManager {
 	}
 	
 	static private void cmdUsers(LymptThread target) {
-		target.writerHandle("" + LymptServer.activeUser);
+		target.writerHandle(String.valueOf(LymptServer.activeUser));
 	}
 	
 	static private void cmdMake(LymptThread target, int containerNum, String password, String ports) {
 		boolean isSuccess = false;
-		//TODO: IP をサーバーから直接取得するように
-		String serverIP = "192.168.138.128";
+		String serverIP = LymptServer.ipv4Addr.getHostAddress();
 		String containerID = "";
 		String containerPort = "";
 		String requiredPortList = generateCommandFormatPortList(ports);
 
 		try {
 			String[] containerList = getContainerList();
-			String requiredContainer = LymptServer.PECULIAR_APP_HEADER + containerList[containerNum];
+			String requiredContainer = LymptServer.CONTAINER_HEADER + containerList[containerNum];
 			
-			System.out.println(getDate() + "Requested container:\t" + requiredContainer);
+			LymptServer.LOG_MANAGER.write("Requested container:\t" + requiredContainer);
 			
-			containerID = OSCommand.exec("docker run --privileged -P" + requiredPortList + " -d " + requiredContainer).toBasicOutput();
+			containerID = OSCommand.exec(String.format(
+					"docker run --privileged -P %s -d %s",
+					requiredPortList, requiredContainer)).toBasicOutput();
 			
-			// Set User's Password
-			String com = "docker exec -t " + containerID + " /usr/bin/autopassword.sh " + password;
-//			System.out.println(com);
-			OSOutputs oo = OSCommand.exec(com);
-//			System.out.println("basic" + oo.toBasicOutput());
-//			System.out.println("error" + oo.toErrorOutput());
+			/* Set User's Password */
+			OSCommand.exec(String.format(
+					"docker exec -t %s /usr/bin/autopassword.sh %s",
+					containerID, password));
 			
-			// Get Container SSH port
-			containerPort = OSCommand.exec(
-					"docker ps -a | grep " + containerID.substring(0, 12) + " | sed 's/\\s\\s\\s*/@/g' | cut -d @ -f6 | tr -d \" \" | tr \",\" \"\\n\" | cut -d : -f2 | cut -d / -f1 | grep -G \"^.*->22$\" | cut -d - -f1"
-					).toBasicOutput();
+			/* Get Container SSH port */
+			containerPort = OSCommand.exec(String.format(
+					"docker ps -a | grep %s | sed 's/\\s\\s\\s*/@/g' | cut -d @ -f6 | tr -d \" \" | tr \",\" \"\\n\" | cut -d : -f2 | cut -d / -f1 | grep -G \"^.*->22$\" | cut -d - -f1",
+					containerID.substring(0, 12))).toBasicOutput();
 			
 			isSuccess = true;
 			target.writerHandle((isSuccess ? "TRUE": "FALSE") + "," + serverIP + ":" + containerPort);
 			
-			
 			target.setContainerID(containerID);
 			LymptServer.containerQty ++;
-			OSCommand.exec("echo " + containerID + " >> " + LymptServer.TMP_FILE.getPath());
-			System.out.println(getDate() + "Making Complete!:\t" + target.getContainerID());
-			System.out.println(getDate() + "ContainerQuantity:\t" + LymptServer.containerQty + "/" + LymptServer.containerCapacity);
+			OSCommand.exec(String.format(
+					"echo %s >> %s",
+					containerID, LymptServer.TMP_FILE.getPath()));
 			
-			String portList = OSCommand.exec(
-					"docker ps -a | grep " + containerID.substring(0, 12) + " | sed 's/\\s\\s\\s*/@/g' | cut -d @ -f6 | tr -d \" \" | tr \",\" \"\\n\" | cut -d : -f2 | cut -d / -f1 | tr \"\\n\" \",\""
-					).toBasicOutput();
+			LymptServer.LOG_MANAGER.write("Making Complete!:\t" + target.getContainerID());
+			LymptServer.LOG_MANAGER.write("ContainerQuantity:\t" + LymptServer.containerQty + "/" + LymptServer.CONTAINER_CAPACITY);
+			
+			String portList = OSCommand.exec(String.format(
+					"docker ps -a | grep %s | sed 's/\\s\\s\\s*/@/g' | cut -d @ -f6 | tr -d \" \" | tr \",\" \"\\n\" | cut -d : -f2 | cut -d / -f1 | tr \"\\n\" \",\"",
+					containerID.substring(0, 12))).toBasicOutput();
+			
 			target.writerHandle(portList);
 		}
 		catch (Exception e) {
@@ -100,7 +100,7 @@ public class ServerCmdManager {
 	}
 	
 	static private String generateCommandFormatPortList(String ports) {
-		//portリストを作成する
+		// generate port list
 		String commandFormatPortList = "";
 		String[] portList = ports.split("@");
 		for (String port: portList) {
@@ -112,7 +112,7 @@ public class ServerCmdManager {
 	}
 	
 	static private void cmdCanMake(LymptThread target) {
-		if (LymptServer.containerQty < LymptServer.containerCapacity) {
+		if (LymptServer.containerQty < LymptServer.CONTAINER_CAPACITY) {
 			target.writerHandle("TRUE");
 		}
 		else {
@@ -121,8 +121,11 @@ public class ServerCmdManager {
 	}
 
 	static private void cmdUsed(LymptThread target) {
-		OSCommand.exec("docker rm -f " + target.getContainerID());
-		System.out.println(getDate() + "Delete Complete!:\t" + target.getContainerID());
+		OSCommand.exec(String.format(
+				"docker rm -f %s",
+				target.getContainerID()));
+		
+		LymptServer.LOG_MANAGER.write("Delete Complete!:\t" + target.getContainerID());
 		LymptServer.containerQty --;
 		target.setContainerID(null);
 	}
@@ -144,9 +147,10 @@ public class ServerCmdManager {
 	}
 	
 	static private String[] getContainerList() {
-		OSOutputs output = OSCommand.exec(
-				"docker images | grep " + LymptServer.PECULIAR_APP_HEADER + " | sed 's/\\s\\s\\s*/@/g' | cut -d @ -f1,2 | cut -d / -f2- | tr @ : | tr \"\\n\" \",\""
-				);
+		OSOutputs output = OSCommand.exec(String.format(
+				"docker images | grep %s | sed 's/\\s\\s\\s*/@/g' | cut -d @ -f1,2 | cut -d / -f2- | tr @ : | tr \"\\n\" \",\"",
+				LymptServer.CONTAINER_HEADER));
+		
 		String containerList = output.toBasicOutput();
 		String[] containerListArray = containerList.split(",");
 
@@ -155,12 +159,5 @@ public class ServerCmdManager {
 	
 	static private void cmdExit(LymptThread target) {
 		target.running = false;
-	}
-	
-	static String getDate() {
-		Date date = new Date();
-		SimpleDateFormat dateFormat = new SimpleDateFormat("[MMM dd HH:mm:ss] ");
-
-        return dateFormat.format(date);
 	}
 }

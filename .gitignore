@@ -4,6 +4,7 @@
 # Eclipse
 /.project
 /.classpath
+/.settings/
 
 # Java
 *.class

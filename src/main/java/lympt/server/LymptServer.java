@@ -2,6 +2,8 @@ package lympt.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -9,37 +11,54 @@ import java.net.Socket;
 public class LymptServer {
 
 	public static void main(String[] args) {
-		new LymptServer(args[0], args[1]).start();
+		new LymptServer(args[0], args[1], args[2], args[3]).start();
 	}
-	
-	/* 
-	 * サーバー接続用ポート: 53600
-	 */
-	
-	static final int PORT = 53600;
-	
+
 	static int activeUser = 0;
-	static int containerCapacity = 5;
 	static int containerQty = 0;
 	
-	static ServerSocket lymptSocket = null;
+	static ServerSocket lymptSocket;
 	
-	// コンテナイメージの先頭固有名(識別子)
-	static String PECULIAR_APP_HEADER = "lympt/";
+	/* default settings */
+	//TODO: set final modifier
+	static int CONTAINER_CAPACITY	= 5;		/* the max number of container images */
+	static String CONTAINER_HEADER 	= "lympt/";	/* identifier of container images */
+	static String LOG_PATH			= "/var/log/lympt.log";	/* location of log file */
+	static int PORT					= 53600;	/* sever port */
 	
 	static File TMP_FILE;
 	
-	// サーバー用ソケットを開く
-	public LymptServer(String containerCapacity, String Identifier) {
+	static LymptLogManager LOG_MANAGER;
+	
+	static Inet4Address ipv4Addr;
+
+	public LymptServer(String containerCapacity, String identifier, String logPath, String port) {
 		try {
-			LymptServer.containerCapacity = Integer.parseInt(containerCapacity);	// DEFAULT: 5
-			LymptServer.PECULIAR_APP_HEADER = Identifier;							// DEFAULT: lympt/
+			LymptServer.CONTAINER_CAPACITY	= isDefault(containerCapacity)
+												? CONTAINER_CAPACITY
+												: Integer.parseInt(containerCapacity);
+
+			LymptServer.CONTAINER_HEADER	= isDefault(identifier)
+												? CONTAINER_HEADER
+												: identifier;
+
+			LymptServer.LOG_PATH			= isDefault(logPath)
+												? LOG_PATH
+												: logPath;
+			
+			LymptServer.PORT				= isDefault(port)
+												? PORT
+												: Integer.parseInt(port);
+			
+			LOG_MANAGER = new LymptLogManager(LOG_PATH);
+			ipv4Addr = (Inet4Address) Inet4Address.getLocalHost();
+			
 		} catch (Exception e) {
-			System.out.println("There are some problems in the unit file.");
+			LOG_MANAGER.write("There are some problems in /etc/sysconfig/lympt.");
 		}
 		try {
 			lymptSocket = new ServerSocket(PORT);
-			System.out.println(ServerCmdManager.getDate() + "Lympt Server is UP!");
+			LOG_MANAGER.write("Lympt Server is UP!");
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -62,6 +81,9 @@ public class LymptServer {
 		
 	}
 	
+	/**
+	 * accept loop
+	 */
 	void makeSeveralUserSocket() {
 		while (true) {
 			try {
@@ -75,21 +97,39 @@ public class LymptServer {
 		}
 	}
 	
-	//本番環境では不要
+	/* for debugging */
 	void managerConsole() {
 		new ManagerConsole().start();
 	}
 	
-	void makeTmpFile() {
+	/**
+	 * generate temporary file
+	 */
+	private void makeTmpFile() {
 		try {
-			TMP_FILE = File.createTempFile("lympt", ".tmp");
-			System.out.println(ServerCmdManager.getDate() + "Generated temporary file: " + TMP_FILE.getPath());
+			TMP_FILE = File.createTempFile("lympt-", ".tmp");	/* lympt-xxxxxxxxxxx.tmp */
+			LOG_MANAGER.write("Generated temporary file: " + TMP_FILE.getPath());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	void monitorResource() {
-		//TODO: 各コンテナのリソースを監視して、閾値を越えればkill
+		//TODO
+	}
+	
+	/**
+	 * Check whether the String value is "default".
+	 * The value's Upper/Lower case is ignored.
+	 * @param s		check this value
+	 * @return		if the value is "default", return true.
+	 */
+	private static boolean isDefault(String s) {
+		if (s.equalsIgnoreCase("default")) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }

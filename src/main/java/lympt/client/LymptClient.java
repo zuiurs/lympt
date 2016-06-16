@@ -15,20 +15,21 @@ public class LymptClient {
 		new LymptClient().start();
 	}
 	
-	static final int PORT = 53600;
+	private static int PORT = 53600;
 	
-	static private BufferedReader reader = null;
-	static private PrintWriter writer = null;
-	static private Socket socket = null;
-	static private String serverIP = null;
+	private static BufferedReader reader = null;
+	private static PrintWriter writer = null;
+	private static Socket socket = null;
+	private static String serverIP = null;
 	
 	public LymptClient() {
 		while (true) {
 			try {
-				BufferedReader r = new BufferedReader(
-						new InputStreamReader(System.in));
-				System.out.print("ServerIP> ");
-				serverIP = r.readLine();
+				serverIP = OSCommand.inputConsole("ServerIP> ");
+				PORT = Integer.parseInt(
+						OSCommand.inputConsole("PORT(default: 53600)> ")
+						);
+				
 				socket = new Socket(serverIP, PORT);
 				break;
 			} catch (Exception e) {
@@ -41,7 +42,9 @@ public class LymptClient {
 		correspondence();
 	}
 	
-	// 基本的なやり取り。コマンド処理は ClientCmdManager を介す。
+	/**
+	 * basic process
+	 */
 	void correspondence() {
 		try {
 			reader = new BufferedReader(
@@ -54,13 +57,12 @@ public class LymptClient {
 					+ "Please press \"HELP\", if you don't know other commands.");
 			
 			while (true) {
-				// コマンド入力はサーバー用に作成したOSCommandを流用
 				String cmd = OSCommand.inputConsole(true);
 				ClientCmdManager.cmdManage(cmd);
 			}
 		}
 		catch (IOException e) {
-			
+			e.printStackTrace();
 		}
 		
 	}
