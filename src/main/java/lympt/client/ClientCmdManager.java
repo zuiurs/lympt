@@ -89,7 +89,7 @@ public class ClientCmdManager {
 			System.out.println(
 					"\nMaking container is Successful!!\n"
 					+ "You can access to " + IPAndPort + " as root with SSH.\n"
-					+ "EX.) ssh root@ServerIP -p port");
+					+ "EX.) ssh root@<serverIP> -p <port>");
 			
 			showPortList();
 			
@@ -155,7 +155,7 @@ public class ClientCmdManager {
 		String portList = "22@";
 		
 		System.out.println("");
-		System.out.println("Type port number you want to use.\nIf you would like finishing this process, please type \".\"");
+		System.out.println("Type port number you want to use.\nIf you would like to finish this process, please type \".\"");
 		while (true) {
 			try {
 				String input = OSCommand.inputConsole("PORT>");

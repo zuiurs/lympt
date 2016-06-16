@@ -1,0 +1,22 @@
+##############################
+# LymptService Configuration #
+##############################
+
+# If you would like to use default value,
+# set the variable "default".
+
+# max container capacity
+# DEFAULT: 5
+CONTAINER_CAPACITY=5
+
+# container identifier
+# DEFAULT: "lympt/"
+CONTAINER_IDENTIFIER="lympt/"
+
+# log file path
+# DEFAULT: "/var/log/lympt.log"
+LOG_PATH="/var/log/lympt.log"
+
+# PORT number
+# DEFAULT: 53600
+PORT=53600

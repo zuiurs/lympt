@@ -26,9 +26,10 @@ public class LymptClient {
 		while (true) {
 			try {
 				serverIP = OSCommand.inputConsole("ServerIP> ");
-				PORT = Integer.parseInt(
-						OSCommand.inputConsole("PORT(default: 53600)> ")
-						);
+				String port_s = OSCommand.inputConsole("PORT(default: 53600)> ");
+				if (!port_s.equals("")) {
+					PORT = Integer.parseInt(port_s);
+				}
 				
 				socket = new Socket(serverIP, PORT);
 				break;

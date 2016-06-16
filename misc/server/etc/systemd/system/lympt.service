@@ -6,7 +6,7 @@ Requires=docker.service
 [Service]
 Type=simple
 EnvironmentFile=-/etc/sysconfig/lympt
-ExecStart=/usr/bin/java -jar /usr/bin/LymptServer.jar ${CONTAINER_CAPACITY} ${CONTAINER_IDENTIFIER}
+ExecStart=/usr/bin/java -jar /usr/bin/LymptServer.jar ${CONTAINER_CAPACITY} ${CONTAINER_IDENTIFIER} ${LOG_PATH} ${PORT}
 
 [Install]
 WantedBy=multi-user.target
